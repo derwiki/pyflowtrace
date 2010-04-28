@@ -21,7 +21,7 @@ def tracer(frame, event, arg):
     if event in ('c_call', 'c_return', 'c_exception'):
         return tracer
 
-	excluded_functions = ("<module>", '__getattr__', '__init__', '<genexpr>', 'tofnamemoduleline', 'showstack', 'is_id_field', 'is_ids_field', 'convert_kv_pair', 'convert'):
+    excluded_functions = ("<module>", '__getattr__', '__init__', '<genexpr>', 'tofnamemoduleline', 'showstack', 'is_id_field', 'is_ids_field', 'convert_kv_pair', 'convert'):
     if frame.f_code.co_name in excluded_functions:
         return tracer
 
