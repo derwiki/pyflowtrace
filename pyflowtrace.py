@@ -12,17 +12,19 @@ for
 
 """
 
+import inspect
+
 logfile = open("trace.flw", "w+")
 GREEN, BROWN, BLUE, MAGENTA, CYAN, WHITE = range(32, 38)
 
 def colorize(s, color=CYAN):
-	return "".join((chr(0033), '[1;%sm' % color, s, chr(0033), '[m'))
+    return "".join((chr(0033), '[1;%sm' % color, s, chr(0033), '[m'))
 
 def tracer(frame, event, arg):
     if event in ('c_call', 'c_return', 'c_exception'):
         return tracer
 
-    excluded_functions = ("<module>", '__getattr__', '__init__', '<genexpr>', 'tofnamemoduleline', 'showstack', 'is_id_field', 'is_ids_field', 'convert_kv_pair', 'convert'):
+    excluded_functions = ("<module>", '__getattr__', '__init__', '<genexpr>', 'tofnamemoduleline', 'showstack', 'is_id_field', 'is_ids_field', 'convert_kv_pair', 'convert')
     if frame.f_code.co_name in excluded_functions:
         return tracer
 
@@ -31,11 +33,11 @@ def tracer(frame, event, arg):
     fn_name = frame.f_code.co_name
     filename = frame.f_code.co_filename
 
-	# ignore builtin and library calls
+    # ignore builtin and library calls
     if filename.startswith('/usr') or filename.startswith('/var/lib'):
         return tracer
 
-	# set nuisance files here, will be skipped
+    # set nuisance files here, will be skipped
     excluded_files = ()
 
     for file in excluded_files:
@@ -44,19 +46,19 @@ def tracer(frame, event, arg):
 
     stack_size = len(inspect.stack())
 
-	# formatargvalues chokes on things not having self.data sometimes
+    # formatargvalues chokes on things not having self.data sometimes
     try:
         args = inspect.formatargvalues(*inspect.getargvalues(frame))
     except Exception, e:
         print e
         return tracer
 
-	FUNCTION_COLS = 120
-	PARAM_COLS = 160
+    FUNCTION_COLS = 120
+    PARAM_COLS = 160
 
-	function_section = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_COLS, '.')
-	buffer = "%s %s\n" % (function_section, args[:PARAM_COLS])
-	logfile.write(buffer)
-	logfile.flush()
+    function_section = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_COLS, '.')
+    buffer = "%s %s\n" % (function_section, args[:PARAM_COLS])
+    logfile.write(buffer)
+    logfile.flush()
 
     return tracer
