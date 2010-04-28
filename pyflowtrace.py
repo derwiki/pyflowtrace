@@ -12,6 +12,7 @@ for
 
 """
 
+logfile = open("yelp_trace.flw", "w+")
 GREEN, BROWN, BLUE, MAGENTA, CYAN, WHITE = range(32, 38)
 
 def colorize(s, color=CYAN):
@@ -53,7 +54,9 @@ def tracer(frame, event, arg):
 	FUNCTION_COLS = 120
 	PARAM_COLS = 160
 
-    buffer = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_CALLS, '.') + args[:PARAM_COLS]
-	print buffer
+	function_section = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_COLS, '.')
+	buffer = "%s %s\n" % (function_section, args[:PARAM_COLS])
+	logfile.write(buffer)
+	logfile.flush()
 
     return tracer
