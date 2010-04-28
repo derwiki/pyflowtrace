@@ -1,3 +1,17 @@
+"""To use:
+import sys
+import pyflowtrace
+sys.setprofile(pyflowtrace.tracer)
+
+Put that code where you want to begin your trace
+I recommend after imports are done to avoid clutter.
+
+'excluded_files' exists for you to filter out modules
+that don't provide any useful information. Same goes
+for 
+
+"""
+
 GREEN, BROWN, BLUE, MAGENTA, CYAN, WHITE = range(32, 38)
 
 def colorize(s, color=CYAN):
@@ -7,7 +21,8 @@ def tracer(frame, event, arg):
     if event in ('c_call', 'c_return', 'c_exception'):
         return tracer
 
-    if frame.f_code.co_name in ("<module>", '__getattr__', '__init__', '<genexpr>', 'tofnamemoduleline', 'showstack', 'is_id_field', 'is_ids_field', 'convert_kv_pair', 'convert'):
+	excluded_functions = ("<module>", '__getattr__', '__init__', '<genexpr>', 'tofnamemoduleline', 'showstack', 'is_id_field', 'is_ids_field', 'convert_kv_pair', 'convert'):
+    if frame.f_code.co_name in excluded_functions:
         return tracer
 
     # event is call or return (for setprofile)
@@ -15,19 +30,12 @@ def tracer(frame, event, arg):
     fn_name = frame.f_code.co_name
     filename = frame.f_code.co_filename
 
+	# ignore builtin and library calls
     if filename.startswith('/usr') or filename.startswith('/var/lib'):
         return tracer
 
-    excluded_files = (
-        'util/yelpy.py',
-        'yelp/models/types.py',
-        'yelp/snappy/__init__.py',
-        'util/crypto.py',
-        'logic/encapsulation.py',
-        'logic/adapter.py',
-        'yelp/util/signals.py',
-        'util/applog.py',
-    )
+	# set nuisance files here, will be skipped
+    excluded_files = ()
 
     for file in excluded_files:
         if filename.endswith(file):
@@ -35,18 +43,17 @@ def tracer(frame, event, arg):
 
     stack_size = len(inspect.stack())
 
-    _, _, _, argvalues = inspect.getargvalues(frame)
-    if 'pattern' in argvalues:
-        return tracer
-
+	# formatargvalues chokes on things not having self.data sometimes
     try:
         args = inspect.formatargvalues(*inspect.getargvalues(frame))
     except Exception, e:
         print e
         return tracer
 
-    first_part = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(120, '.')
-    print first_part, args[:160]
+	FUNCTION_COLS = 120
+	PARAM_COLS = 160
+
+    buffer = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_CALLS, '.') + args[:PARAM_COLS]
+	print buffer
 
     return tracer
-
