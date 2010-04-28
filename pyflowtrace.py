@@ -12,7 +12,7 @@ for
 
 """
 
-logfile = open("yelp_trace.flw", "w+")
+logfile = open("trace.flw", "w+")
 GREEN, BROWN, BLUE, MAGENTA, CYAN, WHITE = range(32, 38)
 
 def colorize(s, color=CYAN):
