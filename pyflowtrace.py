@@ -42,7 +42,7 @@ def tracer(frame, event, arg):
 	if hasattr(custom, "excluded_files"):
 		excluded_files = custom.excluded_files
 	else:
-	excluded_files = ()
+		excluded_files = ()
 
 	for file in excluded_files:
 		if filename.endswith(file):
