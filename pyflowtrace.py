@@ -19,7 +19,8 @@ logfile = open("trace.flw", "w+")
 GREEN, BROWN, BLUE, MAGENTA, CYAN, WHITE = range(32, 38)
 
 def colorize(s, color=CYAN):
-	return "".join((chr(0033), '[1;%sm' % color, s, chr(0033), '[m'))
+	return s
+	#return "".join((chr(0033), '[1;%sm' % color, s, chr(0033), '[m'))
 
 if hasattr(custom, 'cursor_variables'):
 	cursor_variables = custom.cursor_variables
@@ -42,6 +43,10 @@ def tracer(frame, event, arg):
 	# ignore builtin and library calls
 	if filename.startswith('/usr') or filename.startswith('/var/lib'):
 		return tracer
+
+	if hasattr(custom, "file_prefix_ignore"):
+		if filename.startswith(custom.file_prefix_ignore):
+			filename = filename[len(custom.file_prefix_ignore):]
 
 	# set nuisance files here, will be skipped
 	if hasattr(custom, "excluded_files"):
@@ -70,7 +75,7 @@ def tracer(frame, event, arg):
 		print e
 		return tracer
 
-	FUNCTION_COLS = 120
+	FUNCTION_COLS = 90
 	PARAM_COLS = 260
 
 	function_section = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_COLS, '.')
