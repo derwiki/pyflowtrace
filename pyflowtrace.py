@@ -78,7 +78,8 @@ def tracer(frame, event, arg):
 	FUNCTION_COLS = 90
 	PARAM_COLS = 260
 
-	function_section = " ".join(("|" * stack_size, event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_COLS, '.')
+	stack_ruler = "".join((str(i) for i in xrange(0,9))) * 4
+	function_section = " ".join((stack_ruler[:stack_size], event, fn_name, '[%s +%s]' % (colorize(filename), line_nr))).ljust(FUNCTION_COLS, '.')
 
 	if event == "call":
 		param_section = "params: %s" % args
