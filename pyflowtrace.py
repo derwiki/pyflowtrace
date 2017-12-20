@@ -62,6 +62,10 @@ def tracer(frame, event, arg):
     if frame.f_code.co_name in excluded_functions:
         return tracer
 
+    # exclude python libraries and stick to application code
+    if 'python2.7' in filename:
+        return tracer
+
     # ignore builtin and library calls
     if filename.startswith('/usr') or filename.startswith('/var/lib'):
         return tracer
